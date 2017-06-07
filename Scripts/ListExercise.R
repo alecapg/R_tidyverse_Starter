@@ -90,3 +90,19 @@ my_fresh_by_country <-readRDS("Data/by_country_tibble.rds")
 
 #to save a normal dataframe
 write_csv(gapminder2007,"Data/gapminder2007.csv")
+
+#let's put the outlyers of lifeExp~year on a map
+map_data('Africa') %>% 
+  head()
+
+country_summary <- model_by_country_small_rs %>% 
+  group_by(country) %>% 
+  summarise(mean_lifeExp = mean(lifeExp))
+
+map_data('world') %>% 
+  rename(country=region) %>% 
+  left_join(country_summary, by='country') %>%   #we will say more in the tidyr explanation about this function
+  ggplot()+
+  geom_polygon(aes(x=long,y=lat,group=group,fill=mean_lifeExp))+
+  scale_fill_gradient(low='blue',high='red')+#sets range of colours
+  coord_equal()
